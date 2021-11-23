@@ -2,10 +2,12 @@ package com.trabalho;
 
 import com.trabalho.files.FileReader;
 
+import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -18,7 +20,7 @@ public final class Node {
     public static final int PORT = 2;
     public static final int TIME = 3;
     public static final int DELAY = 4;
-    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss:SSSS");
     public static final String SPACE_REGEX = " ";
 
     // atributos do nodo
@@ -29,7 +31,7 @@ public final class Node {
     public Long delay;
 
     // coleção de nodos hosts
-    public List<Node> connections = new ArrayList<>();
+    public static ConcurrentMap<String, Node> connections = new ConcurrentHashMap<>();
 
     // construtor para o nodo atual
     public Node(final String fileName, final String indexNode) {
@@ -59,7 +61,11 @@ public final class Node {
     }
 
     public void execute() {
-        new SocketService(this).run();
+        try {
+            new SocketService(this).run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // método responsavel por popular o nodo atual
@@ -85,7 +91,7 @@ public final class Node {
 
         for (String[] content : contentsArray) {
             final Node node = new Node(content);
-            connections.add(node);
+            connections.put(node.id, node);
         }
     }
 
