@@ -11,16 +11,12 @@ import java.util.TimerTask;
 
 import static com.trabalho.SocketService.GROUP;
 
-/**
- * Tasker responsavel por ficar escutando as mensagens que chegam e reagir a elas
- */
 public class FetchTimeTask {
 
     public static final String PING_OK_MESSAGE = "ping_ok";
     public static final String PING_FROM_MASTER_MASTER = "ping_from_master";
     public static final String FETCH_TIME_MESSAGE = "fetch_time";
     public static final String SEND_TIME_MESSAGE = "send_time";
-
 
     Timer timer;
 

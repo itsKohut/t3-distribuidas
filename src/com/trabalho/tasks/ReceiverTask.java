@@ -53,6 +53,10 @@ public class ReceiverTask extends Thread {
             final String message = String.format("%s %d %s", SEND_TIME_MESSAGE, this.node.id, this.node.time.toString());
             sendMessage(message, port);
         }
+
+        if (response.contains(SEND_TIME_MESSAGE)) {
+            // todo master usa para receber os tempos e popular a colecção global concurrentHahsMap
+        }
     }
 
     public void sendMessage(final String message, final Integer port) {

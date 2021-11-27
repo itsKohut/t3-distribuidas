@@ -21,6 +21,8 @@ public class UpdaterTimeTask {
             this.socket = socket;
         }
 
+        // todo deve chamar o algortimo de berkeleys chamando uma collection global que tem os tempos dos nodos slaves.
+
         public void run() {
             System.out.println("update time");
         }

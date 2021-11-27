@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.trabalho.tasks.FetchTimeTask.PING_FROM_MASTER_MASTER;
 
@@ -61,9 +62,12 @@ public final class SocketService {
 
     public void run() {
         startConnection();
+
+        //todos podem executar
         new ReceiverTask(this.socket, this.node).start();
 
-        new FetchTimeTask(4, this.socket, this.node);;
+        //master pode executar
+        new FetchTimeTask(4, this.socket, this.node);
         new UpdaterTimeTask(4, this.socket);
     }
 }
