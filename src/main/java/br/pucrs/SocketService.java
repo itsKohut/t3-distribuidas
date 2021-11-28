@@ -1,15 +1,15 @@
-package com.trabalho;
+package br.pucrs;
 
-import com.trabalho.tasks.FetchTimeTask;
-import com.trabalho.tasks.ReceiverTask;
-import com.trabalho.tasks.UpdaterTimeTask;
+import br.pucrs.tasks.FetchTimeTask;
+import br.pucrs.tasks.ReceiverTask;
+import br.pucrs.tasks.UpdaterTimeTask;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import static com.trabalho.tasks.FetchTimeTask.PING_FROM_MASTER_MASTER;
+import static br.pucrs.tasks.FetchTimeTask.PING_FROM_MASTER_MASTER;
 
 /**
  * A ideia é esperar todos se conectarem

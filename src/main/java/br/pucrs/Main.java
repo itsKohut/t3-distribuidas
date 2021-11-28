@@ -1,4 +1,4 @@
-package com.trabalho;
+package br.pucrs;
 
 public class Main {
 

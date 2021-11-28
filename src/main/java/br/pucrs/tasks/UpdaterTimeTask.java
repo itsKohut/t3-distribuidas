@@ -1,4 +1,4 @@
-package com.trabalho.tasks;
+package br.pucrs.tasks;
 
 import java.net.DatagramSocket;
 import java.util.Timer;

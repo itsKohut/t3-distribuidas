@@ -1,4 +1,4 @@
-package com.trabalho.files;
+package br.pucrs.files;
 
 import java.io.IOException;
 import java.nio.file.Files;

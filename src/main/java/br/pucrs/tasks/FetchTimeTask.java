@@ -1,6 +1,6 @@
-package com.trabalho.tasks;
+package br.pucrs.tasks;
 
-import com.trabalho.Node;
+import br.pucrs.Node;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.trabalho.SocketService.GROUP;
+import static br.pucrs.SocketService.GROUP;
 
 /**
  * Tasker responsavel por ficar escutando as mensagens que chegam e reagir a elas

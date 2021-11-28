@@ -1,6 +1,6 @@
-package com.trabalho;
+package br.pucrs;
 
-import com.trabalho.files.FileReader;
+import br.pucrs.files.FileReader;
 
 import java.net.UnknownHostException;
 import java.time.LocalTime;

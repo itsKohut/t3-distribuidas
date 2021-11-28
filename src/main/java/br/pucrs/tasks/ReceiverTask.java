@@ -1,15 +1,15 @@
-package com.trabalho.tasks;
+package br.pucrs.tasks;
 
-import com.trabalho.Node;
+import br.pucrs.Node;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import static com.trabalho.Node.SPACE_REGEX;
-import static com.trabalho.SocketService.GROUP;
-import static com.trabalho.tasks.FetchTimeTask.*;
+import static br.pucrs.Node.SPACE_REGEX;
+import static br.pucrs.SocketService.GROUP;
+import static br.pucrs.tasks.FetchTimeTask.*;
 
 public class ReceiverTask extends Thread {
 
