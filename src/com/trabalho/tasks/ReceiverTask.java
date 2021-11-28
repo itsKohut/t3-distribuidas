@@ -24,50 +24,53 @@ public class ReceiverTask extends Thread {
     @Override
     public void run() {
 
-        DatagramPacket packet = new DatagramPacket(new byte[1024], 0, new byte[1024].length);
+        while (true) {
 
-        try {
-            socket.receive(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            DatagramPacket packet = new DatagramPacket(new byte[1024], 0, new byte[1024].length);
 
-        final String response = new String(packet.getData()).trim();
-        System.out.println(response);
+            try {
+                socket.receive(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        // nodos slaves vão receber um ping aos nodos que irão participar da troca de mensagens
-        if (response.contains(PING_FROM_MASTER_MASTER)) {
-            final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
-            final String message = String.format("%s %d", PING_OK_MESSAGE, this.node.id);
-            sendMessage(message, port);
-        }
+            final String response = new String(packet.getData()).trim();
+            //nodos slaves vão receber um ping do nodo master para dizer que irão participar da troca de mensagens
+            if (response.contains(PING_FROM_MASTER_MASTER)) {
+                System.out.println(response);
+                final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
+                final String message = String.format("%s from node with id %s", PING_OK_MESSAGE, this.node.id);
+                sendMessage(message, port);
+            }
 
-        // nodo master vai receber um ok dos nodos slaves conectados
-        if (response.contains(PING_OK_MESSAGE)) {
-            System.out.println(response);
-        }
+            //nodo master vai receber um ok dos nodos slaves conectados
+            if (response.contains(PING_OK_MESSAGE)) {
+                System.out.println(response);
+            }
 
-        // nodo slave vai receber a mensagem e enviar o id e o time para o nodo master
-        if (response.contains(FETCH_TIME_MESSAGE)) {
-            final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
-            final String message = String.format("%s %d %s", SEND_TIME_MESSAGE, this.node.id, this.node.time.toString());
-            sendMessage(message, port);
-        }
+            // nodo slave vai receber a mensagem e enviar o id e o time para o nodo master
+            if (response.contains(FETCH_TIME_MESSAGE)) {
+                System.out.println(response);
+                final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
+                final String message = String.format("%s %s %s", SEND_TIME_MESSAGE, this.node.id, this.node.time.toString());
+                sendMessage(message, port);
+            }
 
-        if (response.contains(SEND_TIME_MESSAGE)) {
-            // todo master usa para receber os tempos e popular a colecção global concurrentHahsMap
+            if (response.contains(SEND_TIME_MESSAGE)) {
+                System.out.println(response);
+            }
         }
     }
 
     public void sendMessage(final String message, final Integer port) {
         byte[] buffer = message.getBytes();
         final DatagramPacket packet;
-
         try {
             packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(GROUP), port);
             this.socket.send(packet);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Não foi possível enviar a mensagem para algum dos nodos");
+            System.exit(1);
         }
     }
 }

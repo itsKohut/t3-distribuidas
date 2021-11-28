@@ -2,7 +2,6 @@ package com.trabalho;
 
 import com.trabalho.files.FileReader;
 
-import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -22,16 +21,14 @@ public final class Node {
     public static final int DELAY = 4;
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss:SSSS");
     public static final String SPACE_REGEX = " ";
-
+    // coleção de nodos hosts
+    public static ConcurrentMap<String, Node> connections = new ConcurrentHashMap<>();
     // atributos do nodo
     public String id;
     public String host;
     public Integer port;
-    public LocalTime time;
+    public volatile LocalTime time;
     public Long delay;
-
-    // coleção de nodos hosts
-    public static ConcurrentMap<String, Node> connections = new ConcurrentHashMap<>();
 
     // construtor para o nodo atual
     public Node(final String fileName, final String indexNode) {
@@ -43,9 +40,9 @@ public final class Node {
         this.time = LocalTime.parse(content[TIME], formatter);
         this.delay = Long.valueOf(content[DELAY]);
 
-        System.out.println("MASTER");
-        System.out.println(this);
-        System.out.println("HOSTS");
+        //System.out.println("ACTUAL");
+        //System.out.println(this);
+        //System.out.println("OTHERS");
         populateHosts(fileName, indexNode);
     }
 
@@ -57,7 +54,7 @@ public final class Node {
         this.time = LocalTime.parse(content[TIME], formatter);
         this.delay = Long.valueOf(content[DELAY]);
 
-        System.out.println(this);
+        // System.out.println(this);
     }
 
     public void execute() {
@@ -93,6 +90,14 @@ public final class Node {
             final Node node = new Node(content);
             connections.put(node.id, node);
         }
+    }
+
+    public synchronized LocalTime getTime() {
+        return this.time;
+    }
+
+    public synchronized void adjustTime(final LocalTime adjustTime) {
+        this.time = adjustTime;
     }
 
     @Override

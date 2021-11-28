@@ -22,7 +22,7 @@ public class FetchTimeTask {
 
     public FetchTimeTask(final Integer seconds, final DatagramSocket socket, final Node node) {
         timer = new Timer();
-        timer.schedule(new FetchTimeExecuter(socket, node), 1000, seconds * 1000);
+        timer.schedule(new FetchTimeExecuter(socket, node), 4000, seconds * 1000);
     }
 
     class FetchTimeExecuter extends TimerTask {
@@ -35,22 +35,23 @@ public class FetchTimeTask {
             this.node = node;
         }
 
-        // envio de mensagem
+        //envio unicast para todos os nodos slaves solicitando a hora deles
         public void run() {
-            System.out.println("fetch time");
-//            node.connections.forEach((key, value) -> {
-//                try {
-//                    sendMessage(FETCH_TIME_MESSAGE, value.port);
-//                } catch (Exception e) {
-//                    System.out.println("Não foi possível enviar a mensagem para algum dos nodos");
-//                    System.exit(1);
-//                }
-//            });
-//            System.out.println("All nodes connected");
+
+            node.connections.forEach((key, value) -> {
+                try {
+                    sendMessage(FETCH_TIME_MESSAGE, value.port);
+                } catch (Exception e) {
+                    System.out.println("Não foi possível enviar a mensagem para algum dos nodos");
+                    System.exit(1);
+                }
+            });
         }
 
+        //envio de mensagem para os nodos filhos requisitando a hora deles
         public void sendMessage(final String message, final Integer port) throws IOException {
-            byte[] buffer = message.getBytes();
+            final String finalMessage = String.format("%s %d", message, this.node.port);
+            byte[] buffer = finalMessage.getBytes();
             final DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(GROUP), port);
             this.socket.send(packet);
         }

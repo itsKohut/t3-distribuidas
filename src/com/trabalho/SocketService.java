@@ -1,5 +1,6 @@
 package com.trabalho;
 
+import com.trabalho.tasks.ClockDriftTask;
 import com.trabalho.tasks.FetchTimeTask;
 import com.trabalho.tasks.ReceiverTask;
 import com.trabalho.tasks.UpdaterTimeTask;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.trabalho.tasks.FetchTimeTask.PING_FROM_MASTER_MASTER;
 
@@ -22,8 +22,9 @@ import static com.trabalho.tasks.FetchTimeTask.PING_FROM_MASTER_MASTER;
 public final class SocketService {
 
     public static final String GROUP = "localhost";
+    public static final String MASTER = "00";
+
     public Node node;
-    //public MulticastSocket socket;
     public DatagramSocket socket;
 
     public SocketService(final Node node) {
@@ -37,8 +38,23 @@ public final class SocketService {
         }
     }
 
+    public void run() {
+
+        new ReceiverTask(this.socket, this.node).start();
+
+        if (this.node.id.equals(MASTER)) {
+            startConnection();
+
+        }
+
+        //new ClockDriftTask(10, this.node);
+        new FetchTimeTask(10, this.socket, this.node);
+        new UpdaterTimeTask(10, this.socket);
+    }
+
     public void startConnection() {
-        System.out.println("Starting connection with all nodes");
+        System.out.println("Starting connection with slaves nodes ...");
+
         node.connections.forEach((key, value) -> {
             try {
                 sendMessage(PING_FROM_MASTER_MASTER, value.port);
@@ -47,27 +63,16 @@ public final class SocketService {
                 System.exit(1);
             }
         });
-        System.out.println("All nodes connected");
     }
 
     public void sendMessage(final String message, final Integer port) throws IOException {
-        byte[] buffer = message.getBytes();
+        final String finalMessage = String.format("%s %d", message, this.node.port);
+        byte[] buffer = finalMessage.getBytes();
         final DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(GROUP), port);
         this.socket.send(packet);
     }
 
     private void constructDatagramSocket(final Integer port) throws IOException {
         socket = new DatagramSocket(port);
-    }
-
-    public void run() {
-        startConnection();
-
-        //todos podem executar
-        new ReceiverTask(this.socket, this.node).start();
-
-        //master pode executar
-        new FetchTimeTask(4, this.socket, this.node);
-        new UpdaterTimeTask(4, this.socket);
     }
 }

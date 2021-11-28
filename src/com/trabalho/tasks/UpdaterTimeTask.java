@@ -10,7 +10,7 @@ public class UpdaterTimeTask {
 
     public UpdaterTimeTask(final Integer seconds, final DatagramSocket socket) {
         timer = new Timer();
-        timer.schedule(new UpdaterTimeExecuter(socket), 3000, seconds * 1000);
+        timer.schedule(new UpdaterTimeExecuter(socket), 8000, seconds * 1000);
     }
 
     class UpdaterTimeExecuter extends TimerTask {
