@@ -52,11 +52,11 @@ public class ReceiverTask extends Thread {
             if (response.contains(FETCH_TIME_MESSAGE)) {
                 System.out.println(response);
                 final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
-                final String message = String.format("%s %s %s", SEND_TIME_MESSAGE, this.node.id, this.node.time.toString());
+                final String message = String.format("%s %s %s", RECEIVE_TIME, this.node.id, this.node.time.toString());
                 sendMessage(message, port);
             }
 
-            if (response.contains(SEND_TIME_MESSAGE)) {
+            if (response.contains(RECEIVE_TIME)) {
                 System.out.println(response);
             }
         }

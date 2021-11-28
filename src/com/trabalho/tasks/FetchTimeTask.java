@@ -16,7 +16,7 @@ public class FetchTimeTask {
     public static final String PING_OK_MESSAGE = "ping_ok";
     public static final String PING_FROM_MASTER_MASTER = "ping_from_master";
     public static final String FETCH_TIME_MESSAGE = "fetch_time";
-    public static final String SEND_TIME_MESSAGE = "send_time";
+    public static final String RECEIVE_TIME = "receive_time";
 
     Timer timer;
 
@@ -38,7 +38,7 @@ public class FetchTimeTask {
         //envio unicast para todos os nodos slaves solicitando a hora deles
         public void run() {
 
-            node.connections.forEach((key, value) -> {
+            Node.connections.forEach((key, value) -> {
                 try {
                     sendMessage(FETCH_TIME_MESSAGE, value.port);
                 } catch (Exception e) {

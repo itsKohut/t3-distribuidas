@@ -6,7 +6,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Classe utilitaria para leitura do arquivo txt  */
+/**
+ * Classe utilitaria para leitura do arquivo txt
+ */
 public final class FileReader {
 
     public static List<String> readFile(final String fileName) {
