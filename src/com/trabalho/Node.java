@@ -53,7 +53,6 @@ public final class Node {
         this.port = Integer.valueOf(content[PORT]);
         this.time = LocalTime.parse(content[TIME]);
         this.delay = Long.valueOf(content[DELAY]);
-
     }
 
     public void execute() {
@@ -108,6 +107,17 @@ public final class Node {
         System.out.printf("Tempo do nodo slave atualizado de %s para %s\n", this.time, newLocalTime);
 
         this.time = newLocalTime;
+
+        driftTime();
+    }
+
+    private void driftTime() {
+
+        // 15 para ter a change de cair no cenario de remoção de media da data
+        int driftTime = (int) (Math.random() * 13);
+        this.time = this.time.plusSeconds(driftTime);
+
+        System.out.printf("Tempo recebeu um drift time de %s segundos para simulação", driftTime);
     }
 
     @Override

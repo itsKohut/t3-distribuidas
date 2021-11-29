@@ -1,6 +1,9 @@
 package com.trabalho;
 
+import java.time.Duration;
 import java.time.LocalTime;
+
+import static java.lang.String.format;
 
 
 public final class BerkeleyAlgorithm {
@@ -12,8 +15,21 @@ public final class BerkeleyAlgorithm {
         long nanoTimeLocal = localTime.toNanoOfDay();
         long serverTimeDifference = 0;
         int quantityNodes = clockHandlers.length + PLUS_MASTER_NODE;
+
+        // leva em consideração que nenhum nodo slave falha
         for (ClockHandler c : clockHandlers) {
-            serverTimeDifference += c.timeServer.toNanoOfDay() - nanoTimeLocal;
+            final LocalTime timeServer = c.timeServer;
+            long elapsedSeconds = Duration.between(localTime, timeServer).toSeconds();
+
+            if (elapsedSeconds <= 10 && elapsedSeconds >= -10) {
+                System.out.println(format("Adicionado a média, diferença das datas %s e %s é menor que %d", localTime, timeServer, elapsedSeconds));
+
+                serverTimeDifference += timeServer.toNanoOfDay() - nanoTimeLocal;
+            } else {
+                System.out.println(format("Ignorado na média, diferença das datas %s e %s é maior ou igual a %d", localTime, timeServer, elapsedSeconds));
+
+                quantityNodes--;
+            }
         }
         return serverTimeDifference / quantityNodes;
     }

@@ -1,6 +1,5 @@
 package com.trabalho;
 
-import com.trabalho.tasks.ClockDriftTask;
 import com.trabalho.tasks.FetchTimeTask;
 import com.trabalho.tasks.ReceiverTask;
 import com.trabalho.tasks.UpdaterTimeTask;
@@ -44,7 +43,8 @@ public final class SocketService {
             new UpdaterTimeTask(10, this.socket, this.node);
         }
 
-        new ClockDriftTask(10, this.node);
+        // removido devido a problemas com sincronização das tasks
+        //new ClockDriftTask(10, this.node);
 
     }
 
