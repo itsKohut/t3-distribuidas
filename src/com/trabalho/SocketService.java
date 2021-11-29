@@ -6,21 +6,18 @@ import com.trabalho.tasks.ReceiverTask;
 import com.trabalho.tasks.UpdaterTimeTask;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.trabalho.tasks.FetchTimeTask.PING_FROM_MASTER_MASTER;
-
+import static com.trabalho.MessageSender.sendMessage;
+import static com.trabalho.tasks.ReceiverTask.PING_FROM_MASTER_MASTER;
 
 public final class SocketService {
 
-    public static final String GROUP = "localhost";
     public static final String MASTER = "00";
 
-    public static ConcurrentMap<String, ClockHandler> clock = new ConcurrentHashMap<>();
+    public static ConcurrentMap<String, ClockHandler> clocks = new ConcurrentHashMap<>();
 
     public Node node;
     public DatagramSocket socket;
@@ -44,7 +41,7 @@ public final class SocketService {
         if (this.node.id.equals(MASTER)) {
             startConnection();
             new FetchTimeTask(10, this.socket, this.node);
-            new UpdaterTimeTask(10, this.socket);
+            new UpdaterTimeTask(10, this.socket, this.node);
         }
 
         new ClockDriftTask(10, this.node);
@@ -54,23 +51,10 @@ public final class SocketService {
     public void startConnection() {
         System.out.println("Starting connection with slaves nodes ...");
 
-        Node.connections.forEach((key, value) -> {
-            try {
-                sendMessage(PING_FROM_MASTER_MASTER, value.port);
-            } catch (IOException e) {
-                System.out.println("Não foi possível enviar a mensagem para algum dos nodos");
-                System.exit(1);
-            }
+        this.node.connections.forEach((key, value) -> {
+            final String message = String.format("%s %d", PING_FROM_MASTER_MASTER, this.node.port);
+            sendMessage(message, value.port, this.socket);
         });
-
-
-    }
-
-    public void sendMessage(final String message, final Integer port) throws IOException {
-        final String finalMessage = String.format("%s %d", message, this.node.port);
-        byte[] buffer = finalMessage.getBytes();
-        final DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(GROUP), port);
-        this.socket.send(packet);
     }
 
     private void constructDatagramSocket(final Integer port) throws IOException {

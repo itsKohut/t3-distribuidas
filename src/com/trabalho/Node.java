@@ -19,10 +19,12 @@ public final class Node {
     public static final int PORT = 2;
     public static final int TIME = 3;
     public static final int DELAY = 4;
-    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss:SSSS");
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     public static final String SPACE_REGEX = " ";
+
     // coleção de nodos hosts
     public static ConcurrentMap<String, Node> connections = new ConcurrentHashMap<>();
+
     // atributos do nodo
     public String id;
     public String host;
@@ -40,10 +42,8 @@ public final class Node {
         this.time = LocalTime.parse(content[TIME], formatter);
         this.delay = Long.valueOf(content[DELAY]);
 
-        //System.out.println("ACTUAL");
-        //System.out.println(this);
-        //System.out.println("OTHERS");
         populateHosts(fileName, indexNode);
+
     }
 
     // construtor para os nodos hosts
@@ -51,21 +51,16 @@ public final class Node {
         this.id = content[ID];
         this.host = content[HOST];
         this.port = Integer.valueOf(content[PORT]);
-        this.time = LocalTime.parse(content[TIME], formatter);
+        this.time = LocalTime.parse(content[TIME]);
         this.delay = Long.valueOf(content[DELAY]);
 
-        // System.out.println(this);
     }
 
     public void execute() {
-        try {
-            new SocketService(this).run();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new SocketService(this).run();
     }
 
-    // método responsavel por popular o nodo atual
+    // instancia um nodo baseado no seu index
     private String[] findLineContentForIndexNode(final String fileName, final String indexNode) {
         final List<String> lines = FileReader.readFile(fileName);
 
@@ -76,8 +71,7 @@ public final class Node {
                 .orElseThrow(() -> new IllegalArgumentException(format("Falha ao instanciar o nodo com index '%s' com arquivo de nome '%s'.", indexNode, fileName)));
     }
 
-
-    // método responsavel por popular a coleção de nodos que são hosts, não incluindo o nodo atual
+    // popula todos os hosts do nodo master
     private void populateHosts(final String fileName, final String indexNode) {
         final List<String> lines = FileReader.readFile(fileName);
 
@@ -92,12 +86,16 @@ public final class Node {
         }
     }
 
+    // busca o tempo atual do nodo
     public synchronized LocalTime getTime() {
         return this.time;
     }
 
-    public synchronized void adjustTime(final LocalTime adjustTime) {
-        this.time = adjustTime;
+    // atualiza o tempo atual do nodo, dado um tempo e o ajuste
+    public synchronized void adjustTime(final LocalTime localTime, final Long adjustTime) {
+        final Long newNanosTime = localTime.toNanoOfDay() + adjustTime;
+        final LocalTime newLocalTime = LocalTime.ofNanoOfDay(newNanosTime);
+        this.time = newLocalTime;
     }
 
     @Override

@@ -1,22 +1,17 @@
 package com.trabalho.tasks;
 
+import com.trabalho.ClockHandler;
 import com.trabalho.Node;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.trabalho.SocketService.GROUP;
+import static com.trabalho.MessageSender.sendMessage;
+import static com.trabalho.SocketService.clocks;
+import static com.trabalho.tasks.ReceiverTask.FETCH_TIME_MESSAGE;
 
 public class FetchTimeTask {
-
-    public static final String PING_OK_MESSAGE = "ping_ok";
-    public static final String PING_FROM_MASTER_MASTER = "ping_from_master";
-    public static final String FETCH_TIME_MESSAGE = "fetch_time";
-    public static final String RECEIVE_TIME = "receive_time";
 
     Timer timer;
 
@@ -39,21 +34,14 @@ public class FetchTimeTask {
         public void run() {
 
             Node.connections.forEach((key, value) -> {
-                try {
-                    sendMessage(FETCH_TIME_MESSAGE, value.port);
-                } catch (Exception e) {
-                    System.out.println("Não foi possível enviar a mensagem para algum dos nodos");
-                    System.exit(1);
-                }
-            });
-        }
 
-        //envio de mensagem para os nodos filhos requisitando a hora deles
-        public void sendMessage(final String message, final Integer port) throws IOException {
-            final String finalMessage = String.format("%s %d", message, this.node.port);
-            byte[] buffer = finalMessage.getBytes();
-            final DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(GROUP), port);
-            this.socket.send(packet);
+                // estrutura inicial de controle do ciclo de uma atualização de tempo
+                final ClockHandler clockHandler = new ClockHandler(value.delay, this.node.time, this.node.time);
+                clocks.put(key, clockHandler);
+
+                final String message = String.format("%s %d %s", FETCH_TIME_MESSAGE, this.node.port, this.node.time);
+                sendMessage(message, value.port, this.socket);
+            });
         }
     }
 }

@@ -1,17 +1,26 @@
 package com.trabalho.tasks;
 
+import com.trabalho.ClockHandler;
 import com.trabalho.Node;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.time.LocalTime;
 
+import static com.trabalho.BerkeleyAlgorithm.calculateRTT;
+import static com.trabalho.BerkeleyAlgorithm.randomT4Time;
+import static com.trabalho.MessageSender.sendMessage;
 import static com.trabalho.Node.SPACE_REGEX;
-import static com.trabalho.SocketService.GROUP;
-import static com.trabalho.tasks.FetchTimeTask.*;
+import static com.trabalho.SocketService.clocks;
 
 public class ReceiverTask extends Thread {
+
+    public static final String PING_OK_MESSAGE = "ping_ok";
+    public static final String PING_FROM_MASTER_MASTER = "ping_from_master";
+    public static final String FETCH_TIME_MESSAGE = "fetch_time";
+    public static final String RECEIVE_TIME = "receive_time";
+    public static final String ADJUST_TIME = "adjust_time";
 
     DatagramSocket socket;
     Node node;
@@ -34,13 +43,15 @@ public class ReceiverTask extends Thread {
                 e.printStackTrace();
             }
 
+            // resposta do socket
             final String response = new String(packet.getData()).trim();
+
             //nodos slaves vão receber um ping do nodo master para dizer que irão participar da troca de mensagens
             if (response.contains(PING_FROM_MASTER_MASTER)) {
                 System.out.println(response);
                 final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
                 final String message = String.format("%s from node with id %s", PING_OK_MESSAGE, this.node.id);
-                sendMessage(message, port);
+                sendMessage(message, port, this.socket);
             }
 
             //nodo master vai receber um ok dos nodos slaves conectados
@@ -53,24 +64,27 @@ public class ReceiverTask extends Thread {
                 System.out.println(response);
                 final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
                 final String message = String.format("%s %s %s", RECEIVE_TIME, this.node.id, this.node.time.toString());
-                sendMessage(message, port);
+                sendMessage(message, port, this.socket);
             }
 
+            // SOMENTE NODO MASTER - recebe o tempo atual do nodo escravo
             if (response.contains(RECEIVE_TIME)) {
-                System.out.println(response);
-            }
-        }
-    }
 
-    public void sendMessage(final String message, final Integer port) {
-        byte[] buffer = message.getBytes();
-        final DatagramPacket packet;
-        try {
-            packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(GROUP), port);
-            this.socket.send(packet);
-        } catch (Exception e) {
-            System.out.println("Não foi possível enviar a mensagem para algum dos nodos");
-            System.exit(1);
+                final String nodeID = response.split(SPACE_REGEX)[1];
+                final LocalTime nodeLocalTime = LocalTime.parse(response.split(SPACE_REGEX)[2]);
+
+                ClockHandler clockHandler = clocks.get(nodeID);
+                clockHandler.timeServer = nodeLocalTime;
+
+                randomT4Time(clockHandler);
+                calculateRTT(clockHandler);
+
+            }
+
+            // SOMENTE NODOS ESCRAVOS - recebe a atualização de tempo do nodo master
+            if (response.contains(ADJUST_TIME)) {
+                //todo entra aqui para atualizar tempo
+            }
         }
     }
 }
