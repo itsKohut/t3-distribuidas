@@ -17,4 +17,14 @@ public final class ClockHandler {
         this.t1 = t1;
         this.t4 = t4;
     }
+
+    @Override
+    public String toString() {
+        return "timeDelay=" + timeDelay +
+                ", timeServer=" + timeServer +
+                ", t1=" + t1 +
+                ", t4=" + t4 +
+                ", rtt=" + rtt +
+                ", oneTimeDelay=" + oneTimeDelay;
+    }
 }

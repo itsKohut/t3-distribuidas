@@ -61,7 +61,7 @@ public class ReceiverTask extends Thread {
 
             // nodo slave vai receber a mensagem e enviar o id e o time para o nodo master
             if (response.contains(FETCH_TIME_MESSAGE)) {
-                System.out.println(response);
+                System.out.println("Nodo master solicitou o tempo deste nodo");
                 final Integer port = Integer.valueOf(response.split(SPACE_REGEX)[1]);
                 final String message = String.format("%s %s %s", RECEIVE_TIME, this.node.id, this.node.time.toString());
                 sendMessage(message, port, this.socket);
@@ -71,19 +71,23 @@ public class ReceiverTask extends Thread {
             if (response.contains(RECEIVE_TIME)) {
 
                 final String nodeID = response.split(SPACE_REGEX)[1];
-                final LocalTime nodeLocalTime = LocalTime.parse(response.split(SPACE_REGEX)[2]);
+                final String nodeLocalTime = response.split(SPACE_REGEX)[2];
+
+                System.out.println(String.format("Nodo master recebeu o tempo %s do nodo slave com id %s", nodeLocalTime, nodeID));
 
                 ClockHandler clockHandler = clocks.get(nodeID);
-                clockHandler.timeServer = nodeLocalTime;
+                clockHandler.timeServer = LocalTime.parse(nodeLocalTime);
 
                 randomT4Time(clockHandler);
                 calculateRTT(clockHandler);
 
+                System.out.println(String.format("NODE ID %s: %s", nodeID, clockHandler));
             }
 
             // SOMENTE NODOS ESCRAVOS - recebe a atualização de tempo do nodo master
             if (response.contains(ADJUST_TIME)) {
-                //todo entra aqui para atualizar tempo
+                final Long newTime = Long.valueOf(response.split(SPACE_REGEX)[1]);
+                this.node.adjustTime(newTime);
             }
         }
     }

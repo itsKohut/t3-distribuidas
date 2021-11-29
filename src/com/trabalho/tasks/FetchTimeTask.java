@@ -33,7 +33,7 @@ public class FetchTimeTask {
         //envio unicast para todos os nodos slaves solicitando a hora deles
         public void run() {
 
-            Node.connections.forEach((key, value) -> {
+            this.node.connections.forEach((key, value) -> {
 
                 // estrutura inicial de controle do ciclo de uma atualização de tempo
                 final ClockHandler clockHandler = new ClockHandler(value.delay, this.node.time, this.node.time);

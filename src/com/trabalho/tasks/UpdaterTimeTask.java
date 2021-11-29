@@ -39,7 +39,7 @@ public class UpdaterTimeTask {
             this.node.adjustTime(this.node.getTime(), averarageTimeInNanos);
 
             // percorre cada conexão do nodo master
-            Node.connections.forEach((key, value) -> {
+            this.node.connections.forEach((key, value) -> {
 
                 // com a chave busca a collection de clocks a fim de buscar o valor do one time delay
                 final Long oneTimeDelay = clocks.get(key).oneTimeDelay;
@@ -52,6 +52,12 @@ public class UpdaterTimeTask {
                 //envia a mensagem
                 sendMessage(message, value.port, this.socket);
             });
+
+            // limpa para a proxima iteração de atualização de tempo
+            clocks.forEach((key, value) -> {
+                clocks.remove(key);
+            });
+
         }
     }
 }

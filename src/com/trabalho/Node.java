@@ -91,10 +91,22 @@ public final class Node {
         return this.time;
     }
 
-    // atualiza o tempo atual do nodo, dado um tempo e o ajuste
+    // atualiza o tempo do nodo master
     public synchronized void adjustTime(final LocalTime localTime, final Long adjustTime) {
         final Long newNanosTime = localTime.toNanoOfDay() + adjustTime;
         final LocalTime newLocalTime = LocalTime.ofNanoOfDay(newNanosTime);
+
+        System.out.printf("Tempo do nodo master atualizado de %s para %s\n", this.time, newLocalTime);
+
+        this.time = newLocalTime;
+    }
+
+    // atualiza o tempo dos nodos slaves
+    public synchronized void adjustTime(final Long newTime) {
+        final LocalTime newLocalTime = LocalTime.ofNanoOfDay(newTime);
+
+        System.out.printf("Tempo do nodo slave atualizado de %s para %s\n", this.time, newLocalTime);
+
         this.time = newLocalTime;
     }
 
